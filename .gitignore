@@ -348,5 +348,6 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
-robotarm/console/robotarm/bin/
-robotarm/console/robotarm/bin/Debug/net5.0/robotarm.dll
+**/bin/
+#robotarm/console/robotarm/bin/Debug/net5.0/robotarm.dll
+*.cache
