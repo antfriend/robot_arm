@@ -351,3 +351,6 @@ MigrationBackup/
 **/bin/
 #robotarm/console/robotarm/bin/Debug/net5.0/robotarm.dll
 *.cache
+robotarm/console/robotarm/obj/Debug/net5.0/robotarm.assets.cache
+robotarm/console/robotarm/bin/Debug/net5.0/robotarm.pdb
+robotarm/console/robotarm/bin/Debug/net5.0/robotarm.dll
