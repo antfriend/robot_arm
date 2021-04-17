@@ -22,8 +22,9 @@ int base_right_park = 340;
 
 int claw_open = 380;
 int claw_closed = 50;
-int wrist_clockwise = 180;
-int wrist_counterclock = 380;
+int wrist_clockwise = 1;
+int wrist_counterclock = 399;
+int _wrist_position = 180;
 int elbow_straight_up = 180;
 int elbow_park = -40;
 int knee_straight_up = 200;
@@ -35,9 +36,9 @@ int iEnd = 100;
 void setup() {
   HCPCA9685.Init(SERVO_MODE);
   HCPCA9685.Sleep(false);
-   delay(5000);
+   delay(3000);
    from_extended_to_park(10);
-   routine_1();
+   //routine_1();
   // park();
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN,HIGH);
@@ -53,25 +54,37 @@ void loop() {
     
     switch (c) {
       case 'p':
+      case 'P':
         from_extended_to_park(15);
         break;
       case 's':
+      case 'S':
         from_park_to_extended(30);
         break;
-      default:
+      case '^':
+        open_claw();
+        break;
+      case 'v':
+        close_claw();
+        break;
+      case '<':
+        wrist_to_counterclockwise(10);
+        Serial.print(_wrist_position);
+        break;
+      case '>':
+        wrist_to_clockwise(10);
+        Serial.print(_wrist_position);
+        break;
+      case 'R':
+      case 'r':
         routine_1();
+        break;
+      default:
+        //routine_1();
+        Serial.print(" what? ");
         break;
     }
     
-//    if(c == 'p'){
-//      from_extended_to_park(15);
-//    }
-//    if(c == 's'){
-//      from_park_to_extended(30);
-//    }
-//    if(c == 'r'){
-//      routine_1();
-//    }
     Serial.print(c);
     if (c == '\n') {
       //Serial.print(" [enter] ");
@@ -85,14 +98,14 @@ void loop() {
 void routine_1(){
     delay(500);
     open_claw();
-    HCPCA9685.Servo(wrist, wrist_counterclock);
+    wrist_to_counterclockwise(wrist_counterclock);
     delay(500);
     from_park_to_extended(5);
     delay(100);
     nibble();
     delay(500);
     close_claw();
-    HCPCA9685.Servo(wrist, wrist_clockwise); 
+    wrist_to_clockwise(wrist_clockwise);
     delay(500);   
     from_extended_to_park(20);
     wrist_flick(500);
@@ -111,14 +124,32 @@ void from_park_to_extended(int milisecs){
    }
 }
 
+void wrist_to_clockwise(int howFar){
+  _wrist_position = _wrist_position - howFar;
+  if(_wrist_position < wrist_clockwise){
+    _wrist_position = wrist_clockwise;
+  }
+  HCPCA9685.Servo(wrist, _wrist_position);
+  delay(10);
+}
+
+void wrist_to_counterclockwise(int howFar){
+  _wrist_position = _wrist_position + howFar;
+  if(_wrist_position > wrist_counterclock){
+    _wrist_position = wrist_counterclock;
+  }
+  HCPCA9685.Servo(wrist, _wrist_position);
+  delay(10);
+}
+
 void wrist_flick(int milisecs){
-  HCPCA9685.Servo(wrist, wrist_clockwise);
+  wrist_to_clockwise(wrist_clockwise);
   delay(milisecs);
-  HCPCA9685.Servo(wrist, wrist_counterclock);
+  wrist_to_counterclockwise(wrist_counterclock);
   delay(milisecs);
-  HCPCA9685.Servo(wrist, wrist_clockwise);
+  wrist_to_clockwise(wrist_clockwise);
   delay(milisecs);
-  HCPCA9685.Servo(wrist, wrist_counterclock);
+  wrist_to_counterclockwise(wrist_counterclock);
   delay(milisecs);
 }
 
