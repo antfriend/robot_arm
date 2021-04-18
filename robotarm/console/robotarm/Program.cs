@@ -6,30 +6,44 @@ namespace robotarm
 {
     class Program
     {
-        static bool _continue;
         static SerialPort _serialPort;
         
         static void Main(string[] args)
         {
-            Console.WriteLine("ROBO COMMAND");
+            speak("ROBO COMMAND");
             _serialPort = new SerialPort();
-            _serialPort.PortName = "COM6";//Set your board COM
+            _serialPort.PortName = "COM6";
             _serialPort.BaudRate = 9600;
             _serialPort.Open();
-            Console.WriteLine("What is my purpose?");
-            Console.WriteLine(" ");
-            Console.Write(">>> ");
+            speak("What is my purpose?");
+            speak(" ");
+            speak(">>> ");
+            //another visitor ...
+            //stay awhile
             string bloop = string.Empty;
-            while (true)
+            while (true)//stay FOREVER!!!
             {
                 bloop = keyReaderLoop(bloop);
             }
         }
 
+        private static void say(string writeThis){
+            Console.Write(writeThis);
+        }
+
+        private static void speak(string writeLine){
+            Console.WriteLine(writeLine);
+        }
+
+        private static void send(string blurb){
+            _serialPort.WriteLine(blurb);
+        }
+
         private static string keyReaderLoop(string blurb)
         {
-            //string blurb = string.Empty;
-            Console.SetCursorPosition(10,10);
+            var xy = Console.GetCursorPosition();
+            Console.SetCursorPosition(1,10);
+
             ConsoleKeyInfo k = Console.ReadKey();
             switch (k.Key)
             {
@@ -40,13 +54,8 @@ namespace robotarm
                 case ConsoleKey.Clear:
                     break;
                 case ConsoleKey.Enter:
-                    //var saywhat = Console.ReadLine();
-                    //_serialPort.WriteLine(saywhat);
-                    //var b = _serialPort.ReadLine();
-                    Console.WriteLine($"Ok {blurb}ing");
-                    _serialPort.WriteLine(blurb);
-                    Console.WriteLine(" ");
-                    Console.Write("=>=>=> ");
+                    send(blurb);
+                    speak($"sending {blurb}");
                     Thread.Sleep(200);
                     blurb = string.Empty;
                     break;
@@ -61,30 +70,35 @@ namespace robotarm
                 case ConsoleKey.PageDown:
                     break;
                 case ConsoleKey.End:
+                    Console.Beep();
                     break;
+
                 case ConsoleKey.Home:
-                    break;
-                case ConsoleKey.LeftArrow:
-                    Console.Write(" <");
-                    _serialPort.Write("<");
+                    send("p");
+                    say(" home is where you park ");
                     blurb = string.Empty;
                     break;
-                case ConsoleKey.UpArrow:
-                    //Console.Write(" ^");
-                    _serialPort.Write("^");
-                    Console.Write(" open ");
+
+                case ConsoleKey.LeftArrow:
+                    say(" <");
+                    send("<");
                     blurb = string.Empty;
                     break;
                 case ConsoleKey.RightArrow:
-                    Console.Write(" >");
-                    _serialPort.Write(">");
+                    say(" >");
+                    send(">");
                     blurb = string.Empty;
                     break;
+
+                case ConsoleKey.UpArrow:
+                    send("^");
+                    speak(" open ");
+                    blurb = string.Empty;
+                    break;
+
                 case ConsoleKey.DownArrow:
-                    //Console.Write(" v");
-                    _serialPort.Write("v");
-                    Console.WriteLine(" close");
-                    Thread.Sleep(10);
+                    send("v");
+                    speak(" close");
                     blurb = string.Empty;
                     break;
                 case ConsoleKey.Select:
@@ -122,7 +136,7 @@ namespace robotarm
                 case ConsoleKey.D9:
                     break;
 
-                case ConsoleKey.A:
+                
                 case ConsoleKey.B:
                 case ConsoleKey.C:
                 case ConsoleKey.D:
@@ -137,10 +151,10 @@ namespace robotarm
                 case ConsoleKey.M:
                 case ConsoleKey.N:
                 case ConsoleKey.O:
-                case ConsoleKey.P:
+                
                 case ConsoleKey.Q:
-                case ConsoleKey.R:
-                case ConsoleKey.S:
+                
+                
                 case ConsoleKey.T:
                 case ConsoleKey.U:
                 case ConsoleKey.V:
@@ -150,6 +164,22 @@ namespace robotarm
                 case ConsoleKey.Z:
                     return $"{blurb}{k.Key}";
                     //break;
+                case ConsoleKey.S:
+                    say(" stand ");
+                    blurb = "s";
+                    break;
+                case ConsoleKey.R:
+                    say(" rest ");
+                    blurb = "r";
+                    break;
+                case ConsoleKey.A:
+                    say(" activate ");
+                    blurb = "a";
+                    break;
+                case ConsoleKey.P:
+                    say(" park ");
+                    blurb = "p";
+                    break;                    
                 case ConsoleKey.LeftWindows:
                     break;
                 case ConsoleKey.RightWindows:

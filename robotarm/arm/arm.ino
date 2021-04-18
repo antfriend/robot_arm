@@ -1,4 +1,5 @@
 #include "HCPCA9685.h"
+//#include "HCPCA9685.cpp"
 #include <Console.h>
  
 #define  I2CAdd 0x40
@@ -36,9 +37,9 @@ int iEnd = 100;
 void setup() {
   HCPCA9685.Init(SERVO_MODE);
   HCPCA9685.Sleep(false);
-   delay(3000);
-   from_extended_to_park(10);
-   //routine_1();
+  delay(3000);
+  from_extended_to_park(10);
+  routine_1();
   // park();
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN,HIGH);
@@ -68,16 +69,20 @@ void loop() {
         close_claw();
         break;
       case '<':
-        wrist_to_counterclockwise(10);
+        wrist_to_counterclockwise(100);
         Serial.print(_wrist_position);
         break;
       case '>':
-        wrist_to_clockwise(10);
+        wrist_to_clockwise(100);
         Serial.print(_wrist_position);
         break;
       case 'R':
       case 'r':
-        routine_1();
+        rest();
+        break;
+      case 'A':
+      case 'a':
+        activate();
         break;
       default:
         //routine_1();
@@ -93,6 +98,14 @@ void loop() {
   } else {
     delay(10);
   }
+}
+
+void rest(){
+  HCPCA9685.Sleep(true);
+}
+
+void activate(){
+  HCPCA9685.Sleep(false);
 }
 
 void routine_1(){
