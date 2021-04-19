@@ -106,6 +106,7 @@ void rest(){
 
 void activate(){
   HCPCA9685.Sleep(false);
+  routine_1();
 }
 
 void routine_1(){
@@ -128,8 +129,7 @@ void from_park_to_extended(int milisecs){
   for(int step = iStart; step < 101; step++)
   {
     HCPCA9685.Servo(base_left, map(step, iStart, iEnd, base_left_park, base_left_straight_up));
-    HCPCA9685.Servo(base_right, map(step, iStart, iEnd, base_right_park, base_right_straight_up));  
-    
+    HCPCA9685.Servo(base_right, map(step, iStart, iEnd, base_right_park, base_right_straight_up)); 
     HCPCA9685.Servo(knee, map(step, iStart, iEnd, knee_park, knee_straight_up)); 
     HCPCA9685.Servo(elbow, map(step, iStart, iEnd, elbow_park, elbow_straight_up)); 
     HCPCA9685.Servo(wrist, map(step, iStart, iEnd, wrist_counterclock, wrist_clockwise)); 
@@ -209,14 +209,14 @@ void park_base(){
 
 void park(){
   park_base();
-  delay(100);
+  delay(50);
   HCPCA9685.Servo(knee, -40);
-  delay(100);
+  delay(50);
   HCPCA9685.Servo(elbow, -40);
-  delay(100);
+  delay(50);
   HCPCA9685.Servo(wrist, 380);
-  delay(100);
+  delay(50);
   open_claw();
-  delay(500);
+  delay(200);
   close_claw();
 }

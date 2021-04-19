@@ -10,14 +10,11 @@ namespace robotarm
         
         static void Main(string[] args)
         {
-            speak("ROBO COMMAND");
             _serialPort = new SerialPort();
             _serialPort.PortName = "COM6";
             _serialPort.BaudRate = 9600;
             _serialPort.Open();
             speak("What is my purpose?");
-            speak(" ");
-            speak(">>> ");
             //another visitor ...
             //stay awhile
             string bloop = string.Empty;
@@ -28,7 +25,7 @@ namespace robotarm
         }
 
         private static void say(string writeThis){
-            Console.Write(writeThis);
+            Console.Write($"{writeThis}     ");
         }
 
         private static void speak(string writeLine){
@@ -42,7 +39,7 @@ namespace robotarm
         private static string keyReaderLoop(string blurb)
         {
             var xy = Console.GetCursorPosition();
-            Console.SetCursorPosition(1,10);
+            Console.SetCursorPosition(0,2);
 
             ConsoleKeyInfo k = Console.ReadKey();
             switch (k.Key)
@@ -70,11 +67,13 @@ namespace robotarm
                 case ConsoleKey.PageDown:
                     break;
                 case ConsoleKey.End:
-                    Console.Beep();
+                    send("r");
+                    say(" sooo sleeepy ... ");
+                    blurb = string.Empty;
                     break;
 
                 case ConsoleKey.Home:
-                    send("p");
+                    send("a");
                     say(" home is where you park ");
                     blurb = string.Empty;
                     break;
@@ -112,6 +111,7 @@ namespace robotarm
                 case ConsoleKey.Insert:
                     break;
                 case ConsoleKey.Delete:
+                    Console.Beep();
                     break;
                 case ConsoleKey.Help:
                     break;
