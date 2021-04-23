@@ -1,6 +1,9 @@
 ﻿using System;
 using System.IO.Ports;
 using System.Threading;
+using System.Drawing;
+using Colorful;
+using Console = Colorful.Console;
 
 namespace robotarm
 {
@@ -24,8 +27,29 @@ namespace robotarm
             }
         }
 
+        private static Color ColorByNumber(int theNumber)
+        {
+            switch (theNumber)
+            {
+                case 1: return Color.Red;
+                case 2: return Color.Yellow;
+                case 3: return Color.Green;
+                case 4: return Color.Black;
+                case 5: return Color.White;
+                default: return Color.Black;
+            }
+        }
+
+        private static void Figlet(string strang)
+        {
+            FigletFont font = FigletFont.Load(@"fonts\cosmic.flf");//1995 http://www.figlet.org/fontdb.cgi
+            Figlet figlet = new Figlet(font);
+            Console.WriteLine(figlet.ToAscii(strang), ColorByNumber(1));
+        }
+
         private static void say(string writeThis){
-            Console.Write($"{writeThis}     ");
+            Figlet(writeThis);
+            //Console.Write($"{writeThis}     ");
         }
 
         private static void speak(string writeLine){
@@ -38,10 +62,10 @@ namespace robotarm
 
         private static string keyReaderLoop(string blurb)
         {
-            var xy = Console.GetCursorPosition();
-            Console.SetCursorPosition(0,2);
+            var xy = System.Console.GetCursorPosition();
+            System.Console.SetCursorPosition(0,2);
 
-            ConsoleKeyInfo k = Console.ReadKey();
+            ConsoleKeyInfo k = System.Console.ReadKey();
             switch (k.Key)
             {
                 case ConsoleKey.Backspace:
@@ -63,8 +87,14 @@ namespace robotarm
                 case ConsoleKey.Spacebar:
                     break;
                 case ConsoleKey.PageUp:
+                    say("turn");
+                    send("k");
+                    blurb = string.Empty;
                     break;
                 case ConsoleKey.PageDown:
+                    say("turn");
+                    send("l");
+                    blurb = string.Empty;
                     break;
                 case ConsoleKey.End:
                     send("r");
@@ -111,7 +141,7 @@ namespace robotarm
                 case ConsoleKey.Insert:
                     break;
                 case ConsoleKey.Delete:
-                    Console.Beep();
+                    Console.Beep(440,3);
                     break;
                 case ConsoleKey.Help:
                     break;

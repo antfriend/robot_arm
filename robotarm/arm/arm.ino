@@ -5,6 +5,11 @@
 #define  I2CAdd 0x40
 HCPCA9685 HCPCA9685(I2CAdd);
 
+#define dirPin 2
+#define stepPin 3
+#define stepsPerRevolution 100
+#define stepSpeed 1000
+
 const int claw = 0;
 const int wrist = 1;
 const int elbow = 2;
@@ -20,12 +25,15 @@ int base_left_straight_up = 130;
 int base_left_park = -40;
 int base_right_straight_up = 150;
 int base_right_park = 340;
-
 int claw_open = 380;
 int claw_closed = 50;
-int wrist_clockwise = 1;
-int wrist_counterclock = 399;
-int _wrist_position = 180;
+
+int wrist_clockwise = -6;
+int wrist_counterclock = 394;
+
+int _wrist_position = 194;
+int _wrist_step = 100;
+
 int elbow_straight_up = 180;
 int elbow_park = -40;
 int knee_straight_up = 200;
@@ -37,13 +45,43 @@ int iEnd = 100;
 void setup() {
   HCPCA9685.Init(SERVO_MODE);
   HCPCA9685.Sleep(false);
-  delay(3000);
-  from_extended_to_park(10);
-  routine_1();
+
+  pinMode(stepPin, OUTPUT);
+  pinMode(dirPin, OUTPUT);
+
+  //delay(3000);
+  //from_extended_to_park(10);
+  wrist_flick(500);
   // park();
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN,HIGH);
   Serial.begin(9600);
+}
+
+void rotateClock(){
+    // Set the spinning direction clockwise:
+    digitalWrite(dirPin, LOW);
+    for (int i = 0; i < stepsPerRevolution; i++) {
+    // These four lines result in 1 step:
+    digitalWrite(stepPin, HIGH);
+    delayMicroseconds(stepSpeed);
+    digitalWrite(stepPin, LOW);
+    delayMicroseconds(stepSpeed);
+  }
+  //digitalWrite(stepPin, HIGH);
+}
+
+void rotateCounterClock(){
+    // Set the spinning direction counterclockwise:
+    digitalWrite(dirPin, HIGH);
+    for (int i = 0; i < stepsPerRevolution; i++) {
+    // These four lines result in 1 step:
+    digitalWrite(stepPin, HIGH);
+    delayMicroseconds(stepSpeed);
+    digitalWrite(stepPin, LOW);
+    delayMicroseconds(stepSpeed);
+  }
+  //digitalWrite(stepPin, HIGH);
 }
 
 void loop() {
@@ -69,11 +107,11 @@ void loop() {
         close_claw();
         break;
       case '<':
-        wrist_to_counterclockwise(100);
+        wrist_to_counterclockwise(_wrist_step);
         Serial.print(_wrist_position);
         break;
       case '>':
-        wrist_to_clockwise(100);
+        wrist_to_clockwise(_wrist_step);
         Serial.print(_wrist_position);
         break;
       case 'R':
@@ -83,6 +121,14 @@ void loop() {
       case 'A':
       case 'a':
         activate();
+        break;
+      case 'K':
+      case 'k':
+        rotateClock();
+        break;
+      case 'L':
+      case 'l':
+        rotateCounterClock();
         break;
       default:
         //routine_1();
@@ -156,13 +202,13 @@ void wrist_to_counterclockwise(int howFar){
 }
 
 void wrist_flick(int milisecs){
-  wrist_to_clockwise(wrist_clockwise);
+  wrist_to_clockwise(_wrist_step);
   delay(milisecs);
-  wrist_to_counterclockwise(wrist_counterclock);
+  wrist_to_counterclockwise(_wrist_step);
   delay(milisecs);
-  wrist_to_clockwise(wrist_clockwise);
+  wrist_to_clockwise(_wrist_step);
   delay(milisecs);
-  wrist_to_counterclockwise(wrist_counterclock);
+  wrist_to_counterclockwise(_wrist_step);
   delay(milisecs);
 }
 
