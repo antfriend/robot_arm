@@ -7,7 +7,7 @@ HCPCA9685 HCPCA9685(I2CAdd);
 
 #define dirPin 2
 #define stepPin 3
-#define stepsPerRevolution 100
+#define stepsPerRevolution 5
 #define stepSpeed 1000
 
 const int claw = 0;
@@ -31,13 +31,28 @@ int claw_closed = 50;
 int wrist_clockwise = -6;
 int wrist_counterclock = 394;
 
-int _wrist_position = 194;
-int _wrist_step = 100;
-
 int elbow_straight_up = 180;
 int elbow_park = -40;
 int knee_straight_up = 200;
 int knee_park = -40;
+
+int _elbow_forward_limit = elbow_park;
+int _elbow_back_limit = elbow_straight_up;
+int _knee_forward_limit = knee_straight_up;
+int _knee_back_limit = knee_park;
+int _base_forward_limit = 100;
+int _base_back_limit = 1;
+
+int _wrist_position = wrist_counterclock;
+int _wrist_step = 100;
+
+int _elbow_position = elbow_park;
+int _elbow_step = 50;
+int _knee_position = knee_park;
+int _knee_step = 20;
+
+int _base_position = _base_forward_limit;
+int _base_step = 5;
 
 int iStart = 1;
 int iEnd = 100;
@@ -114,6 +129,35 @@ void loop() {
         wrist_to_clockwise(_wrist_step);
         Serial.print(_wrist_position);
         break;
+
+      case 'q':
+        elbow_forward(_elbow_step);
+        Serial.print(_elbow_position);
+        break;
+      case 'w':
+        elbow_back(_elbow_step);
+        Serial.print(_elbow_position);
+        break;
+
+      case 'e':
+        knee_forward(_knee_step);
+        Serial.print(_knee_position);
+        break;
+      case 't':
+        knee_back(_knee_step);
+        Serial.print(_knee_position);
+        break;
+
+      case 'u':
+        base_forward(_base_step);
+        Serial.print(_base_position);
+        break;
+      case 'd':
+        base_back(_base_step);
+        Serial.print(_base_position);
+        break;
+
+
       case 'R':
       case 'r':
         rest();
@@ -234,6 +278,11 @@ void from_extended_to_park(int milisecs){
     HCPCA9685.Servo(wrist, map(step, iStart, iEnd, wrist_clockwise, wrist_counterclock)); 
     delay(milisecs);
    }
+   park();
+  // _wrist_position = wrist_counterclock;
+  // _elbow_position = elbow_park;
+  // _knee_position = knee_park;
+  // _base_position = _base_forward_limit;
 }
 
 void open_claw(){
@@ -242,6 +291,76 @@ void open_claw(){
 
 void close_claw(){
   HCPCA9685.Servo(claw, claw_closed);
+}
+
+
+void elbow_forward(int howFar){
+  _elbow_position = _elbow_position - howFar;
+  if(_elbow_position < _elbow_forward_limit){
+    _elbow_position = _elbow_forward_limit;
+  }
+  HCPCA9685.Servo(elbow, _elbow_position);
+  delay(10);
+}
+
+void elbow_back(int howFar){
+  _elbow_position = _elbow_position + howFar;
+  if(_elbow_position > _elbow_back_limit){
+    _elbow_position = _elbow_back_limit;
+  }
+  HCPCA9685.Servo(elbow, _elbow_position);
+  delay(10);
+}
+
+void knee_forward(int howFar){
+  _knee_position = _knee_position + howFar;
+  if(_knee_position > _knee_forward_limit){
+    _knee_position = _knee_forward_limit;
+  }
+  HCPCA9685.Servo(knee, _knee_position);
+  delay(10);
+}
+
+void knee_back(int howFar){
+  _knee_position = _knee_position - howFar;
+  if(_knee_position < _knee_back_limit){
+    _knee_position = _knee_back_limit;
+  }
+  HCPCA9685.Servo(knee, _knee_position);
+  delay(10);
+}
+
+void base_forward(int howFar){
+  _base_position = _base_position + howFar;
+  if(_base_position > _base_forward_limit){
+    _base_position = _base_forward_limit;
+  }
+  /* /map _base_position to both servos
+  int base_left_straight_up = 130;
+  int base_left_park = -40;
+  int base_right_straight_up = 150;
+  int base_right_park = 340;
+  */
+  HCPCA9685.Servo(base_left, map(_base_position, _base_back_limit, _base_forward_limit, base_left_straight_up, base_left_park));
+  HCPCA9685.Servo(base_right, map(_base_position, _base_back_limit, _base_forward_limit, base_right_straight_up, base_right_park));  
+  delay(10);
+}
+
+void base_back(int howFar){
+  _base_position = _base_position - howFar;
+  if(_base_position < _base_back_limit){
+    _base_position = _base_back_limit;
+  }
+  /* /map _base_position to both servos
+  int base_left_straight_up = 130;
+  int base_left_park = -40;
+
+  int base_right_straight_up = 150;
+  int base_right_park = 340;
+  */
+  HCPCA9685.Servo(base_left, map(_base_position, _base_back_limit, _base_forward_limit, base_left_straight_up, base_left_park));
+  HCPCA9685.Servo(base_right, map(_base_position, _base_back_limit, _base_forward_limit, base_right_straight_up, base_right_park));  
+  delay(10);
 }
 
 void park_knee(){
@@ -256,13 +375,18 @@ void park_base(){
 void park(){
   park_base();
   delay(50);
-  HCPCA9685.Servo(knee, -40);
+  HCPCA9685.Servo(knee, knee_park);
   delay(50);
-  HCPCA9685.Servo(elbow, -40);
+  HCPCA9685.Servo(elbow, elbow_park);
   delay(50);
-  HCPCA9685.Servo(wrist, 380);
+  HCPCA9685.Servo(wrist, wrist_counterclock);
   delay(50);
   open_claw();
   delay(200);
   close_claw();
+  _wrist_position = wrist_counterclock;
+  _elbow_position = elbow_park;
+  _knee_position = knee_park;
+  _base_position = _base_forward_limit;
+
 }

@@ -10,14 +10,16 @@ namespace robotarm
     class Program
     {
         static SerialPort _serialPort;
-        
+        static int _current_action_index = 0;
+        static string[] _actionables = new string[] {"claw","wrist","elbow","knee","hips","base"};
+
         static void Main(string[] args)
         {
             _serialPort = new SerialPort();
             _serialPort.PortName = "COM6";
             _serialPort.BaudRate = 9600;
             _serialPort.Open();
-            speak("What is my purpose?");
+            say("WHAT?!?!");
             //another visitor ...
             //stay awhile
             string bloop = string.Empty;
@@ -48,11 +50,13 @@ namespace robotarm
         }
 
         private static void say(string writeThis){
+            Console.Clear();
             Figlet(writeThis);
             //Console.Write($"{writeThis}     ");
         }
 
         private static void speak(string writeLine){
+            
             Console.WriteLine(writeLine);
         }
 
@@ -62,8 +66,8 @@ namespace robotarm
 
         private static string keyReaderLoop(string blurb)
         {
-            var xy = System.Console.GetCursorPosition();
-            System.Console.SetCursorPosition(0,2);
+            //var xy = System.Console.GetCursorPosition();
+            //System.Console.SetCursorPosition(0,2);
 
             ConsoleKeyInfo k = System.Console.ReadKey();
             switch (k.Key)
@@ -76,7 +80,7 @@ namespace robotarm
                     break;
                 case ConsoleKey.Enter:
                     send(blurb);
-                    speak($"sending {blurb}");
+                    //speak($"sending {blurb}");
                     Thread.Sleep(200);
                     blurb = string.Empty;
                     break;
@@ -88,47 +92,40 @@ namespace robotarm
                     break;
                 case ConsoleKey.PageUp:
                     say("turn");
-                    send("k");
-                    blurb = string.Empty;
+                    blurb = "k";
+                    send(blurb);
                     break;
                 case ConsoleKey.PageDown:
                     say("turn");
-                    send("l");
-                    blurb = string.Empty;
+                    blurb = "l";
+                    send(blurb);
                     break;
                 case ConsoleKey.End:
-                    send("r");
-                    say(" sooo sleeepy ... ");
-                    blurb = string.Empty;
+                    say("zzzz");
+                    blurb = "r";
+                    send(blurb);
                     break;
 
                 case ConsoleKey.Home:
-                    send("a");
-                    say(" home is where you park ");
-                    blurb = string.Empty;
+                    say("park");
+                    blurb = "a";
+                    send(blurb);
                     break;
 
                 case ConsoleKey.LeftArrow:
-                    say(" <");
-                    send("<");
-                    blurb = string.Empty;
+                    action_left();
                     break;
+
                 case ConsoleKey.RightArrow:
-                    say(" >");
-                    send(">");
-                    blurb = string.Empty;
+                    action_right();
                     break;
 
                 case ConsoleKey.UpArrow:
-                    send("^");
-                    speak(" open ");
-                    blurb = string.Empty;
+                    set_current_up();
                     break;
 
                 case ConsoleKey.DownArrow:
-                    send("v");
-                    speak(" close");
-                    blurb = string.Empty;
+                    set_current_down();
                     break;
                 case ConsoleKey.Select:
                     break;
@@ -142,6 +139,7 @@ namespace robotarm
                     break;
                 case ConsoleKey.Delete:
                     Console.Beep(440,3);
+                    say("beep");
                     break;
                 case ConsoleKey.Help:
                     break;
@@ -195,20 +193,24 @@ namespace robotarm
                     return $"{blurb}{k.Key}";
                     //break;
                 case ConsoleKey.S:
-                    say(" stand ");
+                    say("stand");
                     blurb = "s";
+                    send(blurb);
                     break;
                 case ConsoleKey.R:
-                    say(" rest ");
+                    say("rest ");
                     blurb = "r";
+                    send(blurb);
                     break;
                 case ConsoleKey.A:
-                    say(" activate ");
+                    say("activate");
                     blurb = "a";
+                    send(blurb);
                     break;
                 case ConsoleKey.P:
-                    say(" park ");
+                    say("park");
                     blurb = "p";
+                    send(blurb);
                     break;                    
                 case ConsoleKey.LeftWindows:
                     break;
@@ -386,6 +388,74 @@ namespace robotarm
                     break;
             }
             return $"{blurb}";
+        }
+
+        private static void action_left()
+        {
+            switch (_current_action_index){
+                case 0://claw close
+                    send("v");
+                    break;
+                case 1://wrist counterclockwise
+                    send("<");
+                    break;
+                case 2://elbow back
+                    send("w");
+                    break;
+                case 3://knee back
+                    send("t");
+                    break; 
+                case 4://base back
+                    send("d");
+                    break;
+                case 5://rotate
+                    send("l");
+                    break;                                                                               
+            }
+        }
+
+        private static void action_right()
+        {
+            switch (_current_action_index){
+                case 0:
+                    //claw open
+                    send("^");
+                    break;
+                case 1:
+                    //wrist clockwise
+                    send(">");
+                    break;
+                case 2://elbow forward
+                    send("q");
+                    break;
+                case 3://knee forward
+                    send("e");
+                    break; 
+                case 4://base forward
+                    send("u");
+                    break;
+                case 5://turn clockwise
+                    send("k");
+                    break; 
+            }
+        }
+
+        private static void set_current_up()
+        {
+            _current_action_index--;
+            if(_current_action_index < 0){
+                _current_action_index = _actionables.Length-1;
+            }
+            say(_actionables[_current_action_index]);
+        }
+
+        private static void set_current_down()
+        {
+            _current_action_index++;
+            if(_current_action_index >= _actionables.Length){
+                _current_action_index = 0;
+            }
+            say(_actionables[_current_action_index]);
         }
     }
 }
