@@ -105,10 +105,12 @@ namespace robotarm
                     break;
 
                 case ConsoleKey.LeftArrow:
+                    Console.Write("<");
                     action_left();
                     break;
 
                 case ConsoleKey.RightArrow:
+                    Console.Write(">");
                     action_right();
                     break;
 
