@@ -55,20 +55,12 @@ namespace robotarm
             //Console.Write($"{writeThis}     ");
         }
 
-        private static void speak(string writeLine){
-            
-            Console.WriteLine(writeLine);
-        }
-
         private static void send(string blurb){
             _serialPort.WriteLine(blurb);
         }
 
         private static string keyReaderLoop(string blurb)
         {
-            //var xy = System.Console.GetCursorPosition();
-            //System.Console.SetCursorPosition(0,2);
-
             ConsoleKeyInfo k = System.Console.ReadKey();
             switch (k.Key)
             {
