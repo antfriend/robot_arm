@@ -43,6 +43,11 @@ int _knee_back_limit = knee_park;
 int _base_forward_limit = 100;
 int _base_back_limit = 1;
 
+int _claw_position = claw_closed;
+int _claw_open_limit = claw_open;
+int _claw_close_limit = claw_closed;
+int _claw_step = 50;
+
 int _wrist_position = wrist_clockwise;
 int _wrist_step = 100;
 
@@ -113,10 +118,10 @@ void loop() {
         from_park_to_extended(30);
         break;
       case '^':
-        open_claw();
+        open_claw(_claw_step);
         break;
       case 'v':
-        close_claw();
+        close_claw(_claw_step);
         break;
       case '<':
         wrist_to_counterclockwise(_wrist_step);
@@ -306,6 +311,21 @@ void close_claw(){
   HCPCA9685.Servo(claw, claw_closed);
 }
 
+void open_claw(int howFar){
+  _claw_position = _claw_position + howFar;
+  if(_claw_position > _claw_open_limit){
+  _claw_position = _claw_open_limit;
+  }
+  HCPCA9685.Servo(claw, _claw_position);
+}
+
+void close_claw(int howFar){
+  _claw_position = _claw_position - howFar;
+  if(_claw_position < _claw_close_limit){
+  _claw_position = _claw_close_limit;
+  }
+  HCPCA9685.Servo(claw, _claw_position);
+}
 
 void elbow_forward(int howFar){
   _elbow_position = _elbow_position - howFar;
@@ -313,7 +333,7 @@ void elbow_forward(int howFar){
     _elbow_position = _elbow_forward_limit;
   }
   HCPCA9685.Servo(elbow, _elbow_position);
-  delay(10);
+  //delay(10);
 }
 
 void elbow_back(int howFar){
@@ -322,7 +342,7 @@ void elbow_back(int howFar){
     _elbow_position = _elbow_back_limit;
   }
   HCPCA9685.Servo(elbow, _elbow_position);
-  delay(10);
+  //delay(10);
 }
 
 void knee_forward(int howFar){
@@ -331,7 +351,7 @@ void knee_forward(int howFar){
     _knee_position = _knee_forward_limit;
   }
   HCPCA9685.Servo(knee, _knee_position);
-  delay(10);
+  //delay(10);
 }
 
 void knee_back(int howFar){
@@ -340,7 +360,7 @@ void knee_back(int howFar){
     _knee_position = _knee_back_limit;
   }
   HCPCA9685.Servo(knee, _knee_position);
-  delay(10);
+  //delay(10);
 }
 
 void base_forward(int howFar){
@@ -349,7 +369,7 @@ void base_forward(int howFar){
     _base_position = _base_forward_limit;
   }
   base_map();
-  delay(10);
+  //delay(10);
 }
 
 void base_back(int howFar){
@@ -358,7 +378,7 @@ void base_back(int howFar){
     _base_position = _base_back_limit;
   }
   base_map();
-  delay(10);
+  //delay(10);
 }
 
 void base_map(){
