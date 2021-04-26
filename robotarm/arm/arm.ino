@@ -5,10 +5,10 @@
 #define  I2CAdd 0x40
 HCPCA9685 HCPCA9685(I2CAdd);
 
-#define dirPin 2
-#define stepPin 3
-#define stepsPerRevolution 5
-#define stepSpeed 1000
+const int dirPin = 2;
+const int stepPin = 3;
+const int steps_to_take = 30;
+const int stepSpeed = 2800;
 
 const int claw = 0;
 const int wrist = 1;
@@ -46,13 +46,13 @@ int _base_back_limit = 1;
 int _claw_position = claw_closed;
 int _claw_open_limit = claw_open;
 int _claw_close_limit = claw_closed;
-int _claw_step = 50;
+int _claw_step = 100;
 
 int _wrist_position = wrist_clockwise;
 int _wrist_step = 100;
 
 int _elbow_position = elbow_park;
-int _elbow_step = 20;
+int _elbow_step = 50;
 int _knee_position = knee_park;
 int _knee_step = 10;
 
@@ -78,7 +78,7 @@ void setup() {
 void rotateClock(){
     // Set the spinning direction clockwise:
     digitalWrite(dirPin, LOW);
-    for (int i = 0; i < stepsPerRevolution; i++) {
+    for (int i = 0; i < steps_to_take; i++) {
     // These four lines result in 1 step:
     digitalWrite(stepPin, HIGH);
     delayMicroseconds(stepSpeed);
@@ -91,7 +91,7 @@ void rotateClock(){
 void rotateCounterClock(){
     // Set the spinning direction counterclockwise:
     digitalWrite(dirPin, HIGH);
-    for (int i = 0; i < stepsPerRevolution; i++) {
+    for (int i = 0; i < steps_to_take; i++) {
     // These four lines result in 1 step:
     digitalWrite(stepPin, HIGH);
     delayMicroseconds(stepSpeed);
